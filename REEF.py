@@ -19,25 +19,23 @@ def download_if_missing(local_path, url):
         with st.spinner(f"Downloading {os.path.basename(local_path)}..."):
             urllib.request.urlretrieve(url, local_path)
 
-# Realm_model.joblib
-REALM_MODEL_PATH = "Realm_model.joblib"
-REALM_MODEL_URL = "https://drive.google.com/uc?export=download&id=1BHH4XP1Mo7WyNFfI_umEC76aL006JDKG"
-download_if_missing(REALM_MODEL_PATH, REALM_MODEL_URL)
-
-# Custom_RF_model.joblib
-CUSTOM_RF_MODEL_PATH = "Custom_RF_model.joblib"
-CUSTOM_RF_MODEL_URL = "https://drive.google.com/uc?export=download&id=1EbtKZBHJmlEC4yPJdZEDCbDZdfnZ8JN7"
-download_if_missing(CUSTOM_RF_MODEL_PATH, CUSTOM_RF_MODEL_URL)
-
-# ========= Loaders =========
 @st.cache_resource
 def load_model():
-    return joblib.load(REALM_MODEL_PATH)
-model = load_model()
+    download_if_missing(
+        "Realm_model.joblib",
+        "https://drive.google.com/uc?export=download&id=1BHH4XP1Mo7WyNFfI_umEC76aL006JDKG"
+    )
+    return joblib.load("Realm_model.joblib")
 
 @st.cache_resource
 def load_custom_rf():
-    return joblib.load(CUSTOM_RF_MODEL_PATH)
+    download_if_missing(
+        "Custom_RF_model.joblib",
+        "https://drive.google.com/uc?export=download&id=1EbtKZBHJmlEC4yPJdZEDCbDZdfnZ8JN7"
+    )
+    return joblib.load("Custom_RF_model.joblib")
+
+model = load_model()
 custom_rf_model = load_custom_rf()
 
 @st.cache_data
