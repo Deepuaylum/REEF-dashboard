@@ -1,4 +1,5 @@
 import os
+import subprocess
 import streamlit as st
 import joblib
 import pandas as pd
@@ -8,13 +9,14 @@ import plotly.graph_objects as go
 import statsmodels.api as sm
 import warnings
 from PIL import Image
-import subprocess
 
 warnings.filterwarnings("ignore")
 st.set_page_config(page_title="R.E.E.F- Rapid Environmental Early-warning Forecaster", layout="wide")
 
+# 1. ========== Robust gdown download ==========
+
 def gdown_download_if_missing(local_path, gdrive_url):
-    if not os.path.exists(local_path):
+    if not os.path.exists(local_path) or os.path.getsize(local_path) < 100_000:  # minimum size sanity
         st.info(f"Downloading {local_path} from Google Drive...")
         try:
             import gdown
@@ -22,19 +24,22 @@ def gdown_download_if_missing(local_path, gdrive_url):
             subprocess.run(["pip", "install", "gdown"])
             import gdown
         gdown.download(gdrive_url, local_path, quiet=False)
-    # Validate: must be a reasonable size (say, at least 100KB for a model)
-    if not os.path.exists(local_path) or os.path.getsize(local_path) < 100*1024:
-        st.error(f"Model file {local_path} was not downloaded correctly.")
-        st.stop()
+        # Confirm it downloaded
+        if not os.path.exists(local_path) or os.path.getsize(local_path) < 100_000:
+            st.error(f"Failed to download {local_path}. Check Google Drive link and file size.")
+            st.stop()
 
-# Google Drive "shareable link" (ID only)
+# 2. ========== Download models if missing ==========
+
 REALM_MODEL_PATH = "Realm_model.joblib"
-CUSTOM_RF_MODEL_PATH = "Custom_RF_model.joblib"
 REALM_MODEL_GDRIVE = "https://drive.google.com/uc?id=1BHH4XP1Mo7WyNFfI_umEC76aL006JDKG"
+CUSTOM_RF_MODEL_PATH = "Custom_RF_model.joblib"
 CUSTOM_RF_MODEL_GDRIVE = "https://drive.google.com/uc?id=1EbtKZBHJmlEC4yPJdZEDCbDZdfnZ8JN7"
 
 gdown_download_if_missing(REALM_MODEL_PATH, REALM_MODEL_GDRIVE)
 gdown_download_if_missing(CUSTOM_RF_MODEL_PATH, CUSTOM_RF_MODEL_GDRIVE)
+
+# 3. ========== Model and Data Loaders ==========
 
 @st.cache_resource
 def load_model():
