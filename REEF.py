@@ -1,5 +1,4 @@
 import os
-import urllib.request
 import streamlit as st
 import joblib
 import pandas as pd
@@ -9,29 +8,42 @@ import plotly.graph_objects as go
 import statsmodels.api as sm
 import warnings
 from PIL import Image
+import subprocess
 
 warnings.filterwarnings("ignore")
 st.set_page_config(page_title="R.E.E.F- Rapid Environmental Early-warning Forecaster", layout="wide")
 
-# ========== Model Download Helper =============
-def download_if_missing(local_path, url):
+def gdown_download_if_missing(local_path, gdrive_url):
     if not os.path.exists(local_path):
-        with st.spinner(f"Downloading {os.path.basename(local_path)}..."):
-            urllib.request.urlretrieve(url, local_path)
+        st.info(f"Downloading {local_path} from Google Drive...")
+        try:
+            import gdown
+        except ImportError:
+            subprocess.run(["pip", "install", "gdown"])
+            import gdown
+        gdown.download(gdrive_url, local_path, quiet=False)
+    # Validate: must be a reasonable size (say, at least 100KB for a model)
+    if not os.path.exists(local_path) or os.path.getsize(local_path) < 100*1024:
+        st.error(f"Model file {local_path} was not downloaded correctly.")
+        st.stop()
 
-# Download models if missing
-download_if_missing("Realm_model.joblib", "https://drive.google.com/uc?export=download&id=1BHH4XP1Mo7WyNFfI_umEC76aL006JDKG")
-download_if_missing("Custom_RF_model.joblib", "https://drive.google.com/uc?export=download&id=1EbtKZBHJmlEC4yPJdZEDCbDZdfnZ8JN7")
+# Google Drive "shareable link" (ID only)
+REALM_MODEL_PATH = "Realm_model.joblib"
+CUSTOM_RF_MODEL_PATH = "Custom_RF_model.joblib"
+REALM_MODEL_GDRIVE = "https://drive.google.com/uc?id=1BHH4XP1Mo7WyNFfI_umEC76aL006JDKG"
+CUSTOM_RF_MODEL_GDRIVE = "https://drive.google.com/uc?id=1EbtKZBHJmlEC4yPJdZEDCbDZdfnZ8JN7"
 
-# ========== Loaders ==========
+gdown_download_if_missing(REALM_MODEL_PATH, REALM_MODEL_GDRIVE)
+gdown_download_if_missing(CUSTOM_RF_MODEL_PATH, CUSTOM_RF_MODEL_GDRIVE)
+
 @st.cache_resource
 def load_model():
-    return joblib.load("Realm_model.joblib")
+    return joblib.load(REALM_MODEL_PATH)
 model = load_model()
 
 @st.cache_resource
 def load_custom_rf():
-    return joblib.load("Custom_RF_model.joblib")
+    return joblib.load(CUSTOM_RF_MODEL_PATH)
 custom_rf_model = load_custom_rf()
 
 @st.cache_data
