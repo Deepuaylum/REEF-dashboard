@@ -1,25 +1,43 @@
+import os
+import urllib.request
 import streamlit as st
+import joblib
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import statsmodels.api as sm
-import joblib
 import warnings
 from PIL import Image
 
 warnings.filterwarnings("ignore")
 st.set_page_config(page_title="R.E.E.F- Rapid Environmental Early-warning Forecaster", layout="wide")
 
+# ========= Cloud Download of Large Model Files =========
+def download_if_missing(local_path, url):
+    if not os.path.exists(local_path):
+        with st.spinner(f"Downloading {os.path.basename(local_path)}..."):
+            urllib.request.urlretrieve(url, local_path)
+
+# Realm_model.joblib
+REALM_MODEL_PATH = "Realm_model.joblib"
+REALM_MODEL_URL = "https://drive.google.com/uc?export=download&id=1BHH4XP1Mo7WyNFfI_umEC76aL006JDKG"
+download_if_missing(REALM_MODEL_PATH, REALM_MODEL_URL)
+
+# Custom_RF_model.joblib
+CUSTOM_RF_MODEL_PATH = "Custom_RF_model.joblib"
+CUSTOM_RF_MODEL_URL = "https://drive.google.com/uc?export=download&id=1EbtKZBHJmlEC4yPJdZEDCbDZdfnZ8JN7"
+download_if_missing(CUSTOM_RF_MODEL_PATH, CUSTOM_RF_MODEL_URL)
+
 # ========= Loaders =========
 @st.cache_resource
 def load_model():
-    return joblib.load("Realm_model.joblib")
+    return joblib.load(REALM_MODEL_PATH)
 model = load_model()
 
 @st.cache_resource
 def load_custom_rf():
-    return joblib.load("Custom_RF_model.joblib")
+    return joblib.load(CUSTOM_RF_MODEL_PATH)
 custom_rf_model = load_custom_rf()
 
 @st.cache_data
@@ -198,7 +216,6 @@ with row3_2:
         if yr >= 2000:
             fig.add_vline(x=yr, line_color="black", line_width=1, line_dash="dot")
     fig.update_layout(
-
         title="Bleaching Percentage Trend",
         xaxis=dict(title="Bleaching Trend Over years", tickfont=dict(size=10)),
         yaxis=dict(title="Avg/Median Bleaching (%)", titlefont=dict(size=12)),
@@ -207,7 +224,6 @@ with row3_2:
         bargap=0.2,
         height=320,
         margin=dict(l=2, r=2, t=32, b=2),
-
     )
     st.plotly_chart(fig, use_container_width=True)
 
@@ -218,8 +234,12 @@ with row3_3:
         "</div>",
         unsafe_allow_html=True
     )
-    feat_imp_img = Image.open(r"C:\Users\deeps\Downloads\WhatsApp Image 2025-07-09 at 01.24.30.jpeg")
-    st.image(feat_imp_img, use_container_width=True)
+    # NOTE: Replace with a valid relative path to image file if needed!
+    try:
+        feat_imp_img = Image.open("WhatsApp Image 2025-07-09 at 01.24.30.jpeg")
+        st.image(feat_imp_img, use_container_width=True)
+    except Exception as e:
+        st.warning("Feature importance image not found.")
 
 # ===== Row 4: OLS + Map + Recommendation =====
 row4_left, row4_right = st.columns([1.1, 1.7], gap="large")
