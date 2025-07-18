@@ -6,3 +6,4 @@ statsmodels
 joblib
 pillow
 gdown
+sklearn
