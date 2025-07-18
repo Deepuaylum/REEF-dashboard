@@ -1,0 +1,10 @@
+streamlit==1.34.0
+pandas==2.2.2
+numpy==1.26.4
+plotly==5.22.0
+statsmodels==0.14.2
+joblib==1.4.0
+Pillow==10.3.0
+scikit-learn==1.4.2
+openpyxl==3.1.2  # Required for pandas Excel handling
+shap==0.45.1     # For SHAP explainability (feature importance)
