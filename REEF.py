@@ -13,29 +13,25 @@ from PIL import Image
 warnings.filterwarnings("ignore")
 st.set_page_config(page_title="R.E.E.F- Rapid Environmental Early-warning Forecaster", layout="wide")
 
-# ========= Cloud Download of Large Model Files =========
+# ========== Model Download Helper =============
 def download_if_missing(local_path, url):
     if not os.path.exists(local_path):
         with st.spinner(f"Downloading {os.path.basename(local_path)}..."):
             urllib.request.urlretrieve(url, local_path)
 
+# Download models if missing
+download_if_missing("Realm_model.joblib", "https://drive.google.com/uc?export=download&id=1BHH4XP1Mo7WyNFfI_umEC76aL006JDKG")
+download_if_missing("Custom_RF_model.joblib", "https://drive.google.com/uc?export=download&id=1EbtKZBHJmlEC4yPJdZEDCbDZdfnZ8JN7")
+
+# ========== Loaders ==========
 @st.cache_resource
 def load_model():
-    download_if_missing(
-        "Realm_model.joblib",
-        "https://drive.google.com/uc?export=download&id=1BHH4XP1Mo7WyNFfI_umEC76aL006JDKG"
-    )
     return joblib.load("Realm_model.joblib")
+model = load_model()
 
 @st.cache_resource
 def load_custom_rf():
-    download_if_missing(
-        "Custom_RF_model.joblib",
-        "https://drive.google.com/uc?export=download&id=1EbtKZBHJmlEC4yPJdZEDCbDZdfnZ8JN7"
-    )
     return joblib.load("Custom_RF_model.joblib")
-
-model = load_model()
 custom_rf_model = load_custom_rf()
 
 @st.cache_data
@@ -232,7 +228,6 @@ with row3_3:
         "</div>",
         unsafe_allow_html=True
     )
-    # NOTE: Replace with a valid relative path to image file if needed!
     try:
         feat_imp_img = Image.open("WhatsApp Image 2025-07-09 at 01.24.30.jpeg")
         st.image(feat_imp_img, use_container_width=True)
