@@ -8,3 +8,4 @@ Pillow==10.3.0
 scikit-learn==1.4.2
 openpyxl==3.1.2  # Required for pandas Excel handling
 shap==0.45.1     # For SHAP explainability (feature importance)
+plotly
