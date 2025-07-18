@@ -25,3 +25,4 @@ statsmodels==0.14.2
 joblib==1.4.2
 pillow==10.3.0
 gdown
+sklearn
