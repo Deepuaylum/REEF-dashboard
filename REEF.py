@@ -186,7 +186,7 @@ with row3_1:
 
 with row3_2:
     threshold = 30
-    event_years = [1998,2005, 2010, 2016, 2023]
+    event_years = [1998, 2005, 2010, 2016, 2023]
     df_year = (
         df.groupby("Date_Year")
         .agg(
@@ -228,10 +228,27 @@ with row3_2:
             fig.add_vline(x=yr, line_color="black", line_width=1, line_dash="dot")
     fig.update_layout(
         title="Bleaching Percentage Trend",
-        xaxis=dict(title="Bleaching Trend Over years", tickfont=dict(size=10)),
-        yaxis=dict(title="Avg/Median Bleaching (%)", titlefont=dict(size=12)),
-        yaxis2=dict(title="Extreme Events (Count)", overlaying="y", side="right", showgrid=False),
-        legend=dict(orientation="h", yanchor="top", y=1.07, xanchor="center", x=0.5, font=dict(size=10)),
+        xaxis=dict(
+            title=dict(text="Bleaching Trend Over years", font=dict(size=10)),
+            tickfont=dict(size=10)
+        ),
+        yaxis=dict(
+            title=dict(text="Avg/Median Bleaching (%)", font=dict(size=12))
+        ),
+        yaxis2=dict(
+            title=dict(text="Extreme Events (Count)", font=dict(size=12)),
+            overlaying="y",
+            side="right",
+            showgrid=False
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=1.07,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=10)
+        ),
         bargap=0.2,
         height=320,
         margin=dict(l=2, r=2, t=32, b=2),
